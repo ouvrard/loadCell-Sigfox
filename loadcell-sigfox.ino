@@ -25,6 +25,8 @@ const int analogvalB = 819;    // Analog reading taken with load B on the load c
 float tare;                    // Tare weight of the food container
 float currentLoad = 0;         // Current weight on the load cell (food+container)
 float load = 0;                // Food weight in the container
+float lastLoad = 0;            // Last food weight send
+float sensibility = 2;         // Load scale sensibility
 const int nSamples = 30;       // Number of samples for the load value
 
 // Time variables
@@ -56,11 +58,15 @@ void loop() {
     currentLoad = getLoad();
     load = currentLoad - tare;
 
-	// Sometimes the load is negative (but close to zero)
-	// This is caused by a bad calibration during the initialization process (maybe...)
-	// TODO : fix it !
+    // Sometimes the load is negative (but close to zero)
+    // This is caused by a bad calibration during the initialization process (maybe...)
+    // TODO : fix it !
     if(load < 0)
       load = 0;
+
+    // Set the tolerance of the load scale +/- 2 g
+    if(abs(lastLoad - load) <= sensibility)
+      load = lastLoad;
 
     // Turn the LED on during data sending
     digitalWrite(13, HIGH);
